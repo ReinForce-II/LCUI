@@ -1,0 +1,12 @@
+.image {
+    width: 600px;
+    height: 600px;
+    border: 1px solid #eee;
+    background-image: url(test_image_scaling.png);
+    background-size: contain;
+    margin: 5px 0;
+}
+root {
+    padding: 20px;
+    box-sizing: border-box;
+}

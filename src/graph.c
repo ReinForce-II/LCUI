@@ -1023,6 +1023,122 @@ int Graph_Zoom(const LCUI_Graph *graph, LCUI_Graph *buff, LCUI_BOOL keep_scale,
 	return 0;
 }
 
+int Graph_Zoom_Bilinear(const LCUI_Graph *graph, LCUI_Graph *buff, LCUI_BOOL keep_scale,
+	       int width, int height)
+{
+	if (graph->color_type != LCUI_COLOR_TYPE_RGB
+	&& graph->color_type != LCUI_COLOR_TYPE_ARGB){
+		/* fall back to nearest scaling */
+		LOG("[graph] unable to perform bilinear scaling, fallback...\n");
+		return Graph_Zoom(graph, buff, keep_scale, width, height);
+	}
+	LCUI_Rect rect;
+	LCUI_ARGB a, b, c, d;
+	int x, y, index;
+	int i, j;
+	float x_diff, y_diff;
+	LCUI_ARGB t_color;
+	int offset = 0;
+	double scale_x = 0.0, scale_y = 0.0;
+	if (!Graph_IsValid(graph) || (width <= 0 && height <= 0)) {
+		return -1;
+	}
+	/* 获取引用的有效区域，以及指向引用的对象的指针 */
+	Graph_GetValidRect(graph, &rect);
+	graph = Graph_GetQuote(graph);
+	if (width > 0) {
+		scale_x = 1.0 * rect.width / width;
+	}
+	if (height > 0) {
+		scale_y = 1.0 * rect.height / height;
+	}
+	if (width <= 0) {
+		scale_x = scale_y;
+		width = (int)(0.5 + 1.0 * graph->width / scale_x);
+	}
+	if (height <= 0) {
+		scale_y = scale_x;
+		height = (int)(0.5 + 1.0 * graph->height / scale_y);
+	}
+	/* 如果保持宽高比 */
+	if (keep_scale) {
+		if (scale_x < scale_y) {
+			scale_y = scale_x;
+		} else {
+			scale_x = scale_y;
+		}
+	}
+	buff->color_type = graph->color_type;
+	if (Graph_Create(buff, width, height) < 0) {
+		return -2;
+	}
+	for (i = 0; i < height; i++) {
+		for (j = 0; j < width; j++) {
+			x = (int)(scale_x * j);
+			y = (int)(scale_y * i);
+			x_diff = (scale_x * j) - x;
+			y_diff = (scale_y * i) - y;
+			index = (y * graph->width + x);
+			if (graph->color_type == LCUI_COLOR_TYPE_ARGB) {
+				a = graph->argb[index];
+				b = graph->argb[index + 1];
+				c = graph->argb[index + graph->width];
+				d = graph->argb[index + graph->width + 1];
+			}
+			else {
+				a =	ARGB(0xff,
+					graph->bytes[(index) * graph->bytes_per_pixel + 2],
+					graph->bytes[(index) * graph->bytes_per_pixel + 1],
+					graph->bytes[(index) * graph->bytes_per_pixel + 0]);
+				b =	ARGB(0xff,
+					graph->bytes[(index + 1) * graph->bytes_per_pixel + 2],
+					graph->bytes[(index + 1) * graph->bytes_per_pixel + 1],
+					graph->bytes[(index + 1) * graph->bytes_per_pixel + 0]);
+				c =	ARGB(0xff,
+					graph->bytes[(index + graph->width) * graph->bytes_per_pixel + 2],
+					graph->bytes[(index + graph->width) * graph->bytes_per_pixel + 1],
+					graph->bytes[(index + graph->width) * graph->bytes_per_pixel + 0]);
+				d =	ARGB(0xff,
+					graph->bytes[(index + graph->width + 1) * graph->bytes_per_pixel + 2],
+					graph->bytes[(index + graph->width + 1) * graph->bytes_per_pixel + 1],
+					graph->bytes[(index + graph->width + 1) * graph->bytes_per_pixel + 0]);
+			}
+			t_color.b =	a.b * (1 - x_diff) * (1 - y_diff) +
+					b.b * (x_diff) * (1 - y_diff) +
+					c.b * (y_diff) * (1 - x_diff) +
+					d.b * (x_diff * y_diff);
+			t_color.g =	a.g * (1 - x_diff) * (1 - y_diff) +
+					b.g * (x_diff) * (1 - y_diff) +
+					c.g * (y_diff) * (1 - x_diff) +
+					d.g * (x_diff * y_diff);
+			t_color.r =	a.r * (1 - x_diff) * (1 - y_diff) +
+					b.r * (x_diff) * (1 - y_diff) +
+					c.r * (y_diff) * (1 - x_diff) +
+					d.r * (x_diff * y_diff);
+			if (graph->color_type == LCUI_COLOR_TYPE_ARGB) {
+				t_color.a =	a.a * (1 - x_diff) * (1 - y_diff) +
+						b.a * (x_diff) * (1 - y_diff) +
+						c.a * (y_diff) * (1 - x_diff) +
+						d.a * (x_diff * y_diff);
+			}
+
+			if (graph->color_type == LCUI_COLOR_TYPE_ARGB) {
+				buff->argb[offset].a = t_color.a;
+				buff->argb[offset].r = t_color.r;
+				buff->argb[offset].g = t_color.g;
+				buff->argb[offset].b = t_color.b;
+			}
+			else {
+				buff->bytes[offset * graph->bytes_per_pixel] = t_color.b;
+				buff->bytes[offset * graph->bytes_per_pixel + 1] = t_color.g;
+				buff->bytes[offset * graph->bytes_per_pixel + 2] = t_color.r;
+			}
+			offset++;
+		}
+	}
+	return 0;
+}
+
 int Graph_Cut(const LCUI_Graph *graph, LCUI_Rect rect, LCUI_Graph *buff)
 {
 	if (!Graph_IsValid(graph)) {

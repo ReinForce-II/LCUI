@@ -86,7 +86,11 @@ void Background_Paint(const LCUI_Background *bg,
 		width = read_rect.width;
 		height = read_rect.height;
 		/* 按比例进行缩放 */
+#ifdef USE_BILINEAR_SCALING
+		Graph_Zoom_Bilinear(&graph, &buffer, FALSE, width, height);
+#else
 		Graph_Zoom(&graph, &buffer, FALSE, width, height);
+#endif
 		Graph_QuoteReadOnly(&graph, &buffer, NULL);
 	}
 	/* 计算相对于绘制区域的坐标 */

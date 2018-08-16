@@ -165,6 +165,9 @@ LCUI_API int Graph_SetBlueBits(LCUI_Graph *graph, uchar_t *b, size_t size);
 LCUI_API int Graph_Zoom(const LCUI_Graph *graph, LCUI_Graph *buff,
 			LCUI_BOOL keep_scale, int width, int height);
 
+LCUI_API int Graph_Zoom_Bilinear(const LCUI_Graph *graph, LCUI_Graph *buff,
+			LCUI_BOOL keep_scale, int width, int height);
+
 LCUI_API int Graph_Cut(const LCUI_Graph *graph, LCUI_Rect rect,
 		       LCUI_Graph *buff);
 

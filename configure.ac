@@ -190,6 +190,15 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+# use bilinear scaling
+AC_ARG_ENABLE(bilinear-scaling, AC_HELP_STRING([--enable-bilinear-scaling],
+[use bilinear scaling [[default=no]]]), enable_bilinear_scaling=$enableval)
+if test "$enable_bilinear_scaling" = "yes"; then
+	AC_DEFINE_UNQUOTED([USE_BILINEAR_SCALING], 1, [Define to 1 if you enabled bilinear scaling.])
+else
+	enable_bilinear_scaling=no
+fi
+
 AC_SUBST(PACKAGE_LIBS)
 AC_SUBST(CFLAGS)
 AC_SUBST(CXXFLAGS)
@@ -226,5 +235,6 @@ echo -e "Build with font-engine support ..... : $font_engine_name"
 echo -e "Build with fontconfig support ...... : $want_fontconfig"
 echo -e "Build with thread support .......... : $thread_name"
 echo -e "Build with video support ........... : $video_driver_name"
+echo -e "Build with optimized scaling ....... : $enable_bilinear_scaling"
 echo
 
