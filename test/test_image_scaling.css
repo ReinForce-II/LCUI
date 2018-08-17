@@ -1,9 +1,9 @@
 .image {
-    width: 600px;
-    height: 600px;
+    width: 1280px;
+    height: 720px;
     border: 1px solid #eee;
     background-image: url(test_image_scaling.png);
-    background-size: contain;
+    background-size: cover;
     margin: 5px 0;
 }
 root {

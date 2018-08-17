@@ -1075,8 +1075,8 @@ int Graph_Zoom_Bilinear(const LCUI_Graph *graph, LCUI_Graph *buff,
 			int y = (int)(scale_y * i);
 			float x_diff = (scale_x * j) - x;
 			float y_diff = (scale_y * i) - y;
-			int index = (y * graph->width + x);
-			int offset = i * width + j;
+			int index = (y + rect.y) * graph->bytes_per_row / graph->bytes_per_pixel + rect.x + x;
+			int offset = i * buff->bytes_per_row / buff->bytes_per_pixel + j;
 			LCUI_ARGB a, b, c, d, t_color;
 			if (graph->color_type == LCUI_COLOR_TYPE_ARGB) {
 				a = graph->argb[index];
