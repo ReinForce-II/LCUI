@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "WSL",
             "intelliSenseMode": "clang-x64",
             "includePath": [
                 "${workspaceRoot}/include",
@@ -18,7 +18,7 @@
                     "/usr/local/include"
                 ]
             },
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++17"
         }
