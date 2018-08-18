@@ -194,6 +194,7 @@ fi
 AC_ARG_ENABLE(bilinear-scaling, AC_HELP_STRING([--enable-bilinear-scaling],
 [use bilinear scaling [[default=no]]]), enable_bilinear_scaling=$enableval)
 if test "$enable_bilinear_scaling" = "yes"; then
+	AC_OPENMP
 	AC_DEFINE_UNQUOTED([USE_BILINEAR_SCALING], 1, [Define to 1 if you enabled bilinear scaling.])
 else
 	enable_bilinear_scaling=no
