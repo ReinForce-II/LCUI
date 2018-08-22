@@ -1034,10 +1034,6 @@ int Graph_ZoomBilinear(const LCUI_Graph *graph, LCUI_Graph *buff,
 		       LCUI_BOOL keep_scale, int width, int height)
 {
 	LCUI_Rect rect;
-	LCUI_ARGB a, b, c, d, t_color;
-
-	int x, y, i, j;
-	float x_diff, y_diff;
 	double scale_x = 0.0, scale_y = 0.0;
 
 	if (graph->color_type != LCUI_COLOR_TYPE_RGB &&
@@ -1079,8 +1075,9 @@ int Graph_ZoomBilinear(const LCUI_Graph *graph, LCUI_Graph *buff,
 	if (Graph_Create(buff, width, height) < 0) {
 		return -2;
 	}
-	for (i = 0; i < height; i++) {
-		for (j = 0; j < width; j++) {
+#pragma omp parallel for
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
 			/*
 			 * Qmn = (m, n).
 			 * Qxy1 = (x2 - x) / (x2 - x1) * Q11 + (x - x1) / (x2
@@ -1090,10 +1087,11 @@ int Graph_ZoomBilinear(const LCUI_Graph *graph, LCUI_Graph *buff,
 			 * Qxy = (y2 - y) / (y2 - y1) * Qxy1 + (y - y1) / (y2 -
 			 * y1) * Qxy2
 			 */
-			x = (int)(scale_x * j);
-			y = (int)(scale_y * i);
-			x_diff = (scale_x * j) - x;
-			y_diff = (scale_y * i) - y;
+			LCUI_ARGB a, b, c, d, t_color;
+			int x = (int)(scale_x * j);
+			int y = (int)(scale_y * i);
+			float x_diff = (scale_x * j) - x;
+			float y_diff = (scale_y * i) - y;
 			Graph_GetPixel(graph, x + rect.x + 0, y + rect.y + 0,
 				       a);
 			Graph_GetPixel(graph, x + rect.x + 1, y + rect.y + 0,

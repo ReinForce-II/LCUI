@@ -76,51 +76,30 @@ LCUI_BEGIN_HEADER
 	}
 
 /* 混合像素的RGB值 */
-#define RGB565_FROM_RGB(pixel, r, g, b)                                \
-	{                                                              \
-		pixel = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3); \
-	}
+#define RGB565_FROM_RGB(pixel, r, g, b)			\
+{							\
+    pixel = ((r>>3)<<11)|((g>>2)<<5)|(b>>3);		\
+}
 
-#define RGB555_FROM_RGB(pixel, r, g, b)                                \
-	{                                                              \
-		pixel = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3); \
-	}
+#define RGB555_FROM_RGB(pixel, r, g, b)			\
+{							\
+	pixel = ((r>>3)<<10)|((g>>3)<<5)|(b>>3);	\
+}
 
-#define RGB888_FROM_RGB(pixel, r, g, b)           \
-	{                                         \
-		pixel = (r << 16) | (g << 8) | b; \
-	}
+#define RGB888_FROM_RGB(pixel, r, g, b)			\
+{							\
+	pixel = (r<<16)|(g<<8)|b;			\
+}
 
-#define Graph_GetQuote(g) (g)->quote.is_valid ? (g)->quote.source : (g)
+#define Graph_GetQuote(g) (g)->quote.is_valid ? (g)->quote.source:(g)
 
-#define Graph_SetPixel(G, X, Y, C)                                        \
-	if ((G)->color_type == LCUI_COLOR_TYPE_ARGB) {                    \
-		(G)->argb[(G)->width * (Y) + (X)] = (C);                  \
-	} else {                                                          \
-		(G)->bytes[(G)->bytes_per_row * (Y) + (X)*3] = (C).b;     \
-		(G)->bytes[(G)->bytes_per_row * (Y) + (X)*3 + 1] = (C).g; \
-		(G)->bytes[(G)->bytes_per_row * (Y) + (X)*3 + 2] = (C).r; \
-	}
-
-#define Graph_SetPixelAlpha(G, X, Y, A) \
-	(G)->argb[(G)->width * (Y) + (X)].alpha = (A)
-
-#define Graph_GetPixel(G, X, Y, C)                                            \
-	if ((G)->color_type == LCUI_COLOR_TYPE_ARGB) {                        \
-		(C) = (G)->argb[(G)->width * ((Y) % (G)->height) +            \
-				((X) % (G)->width)];                          \
-	} else {                                                              \
-		(C).value =                                                   \
-		    (G)->bytes[(G)->bytes_per_row * ((Y) % (G)->height) +     \
-			       ((X) % (G)->width) * (G)->bytes_per_pixel]     \
-			<< 0 |                                                \
-		    (G)->bytes[(G)->bytes_per_row * ((Y) % (G)->height) +     \
-			       ((X) % (G)->width) * (G)->bytes_per_pixel + 1] \
-			<< 8 |                                                \
-		    (G)->bytes[(G)->bytes_per_row * ((Y) % (G)->height) +     \
-			       ((X) % (G)->width) * (G)->bytes_per_pixel + 2] \
-			<< 16 |                                               \
-		    0xff << 24;                                               \
+#define Graph_SetPixel(G, X, Y, C) 						\
+	if( (G)->color_type == LCUI_COLOR_TYPE_ARGB ) {				\
+		(G)->argb[(G)->width*(Y)+(X)] = (C);			\
+	} else {								\
+		(G)->bytes[(G)->bytes_per_row*(Y)+(X)*3] = (C).b;	\
+		(G)->bytes[(G)->bytes_per_row*(Y)+(X)*3+1] = (C).g;	\
+		(G)->bytes[(G)->bytes_per_row*(Y)+(X)*3+2] = (C).r;	\
 	}
 
 /** 判断图像是否有Alpha通道 */
@@ -132,6 +111,20 @@ LCUI_BEGIN_HEADER
 #define Graph_IsWritable(G)  \
 	(Graph_IsValid(G) && \
 	 ((G)->quote.is_valid ? (G)->quote.is_writable : TRUE))
+
+#define Graph_GetPixel(G, X, Y, C)					\
+	if( (G)->color_type == LCUI_COLOR_TYPE_ARGB ) {			\
+		(C) = (G)->argb[(G)->width*((Y)%(G)->height)+((X)%(G)->width)];	\
+	} else {							\
+		(C).value =						\
+		(G)->bytes[(G)->bytes_per_row*((Y)%(G)->height)		\
+		+((X)%(G)->width)*(G)->bytes_per_pixel]<<0		\
+		| (G)->bytes[(G)->bytes_per_row*((Y)%(G)->height)	\
+		+((X)%(G)->width)*(G)->bytes_per_pixel+1]<<8		\
+		| (G)->bytes[(G)->bytes_per_row*((Y)%(G)->height)	\
+		+((X)%(G)->width)*(G)->bytes_per_pixel+2]<<16		\
+		| 0xff<<24;						\
+	}
 
 LCUI_API void Graph_PrintInfo(LCUI_Graph *graph);
 
@@ -188,7 +181,7 @@ LCUI_API int Graph_Zoom(const LCUI_Graph *graph, LCUI_Graph *buff,
 			LCUI_BOOL keep_scale, int width, int height);
 
 LCUI_API int Graph_ZoomBilinear(const LCUI_Graph *graph, LCUI_Graph *buff,
-				LCUI_BOOL keep_scale, int width, int height);
+			LCUI_BOOL keep_scale, int width, int height);
 
 LCUI_API int Graph_Cut(const LCUI_Graph *graph, LCUI_Rect rect,
 		       LCUI_Graph *buff);
